@@ -3,7 +3,9 @@ import datetime
 import pandas as pd
 from utils import perform_get_request, xml_to_load_dataframe, xml_to_gen_data
 
-def get_load_data_from_entsoe(regions, periodStart='202302240000', periodEnd='202303240000', output_path='./data'):
+green_energy = ['B01', 'B09', 'B10', 'B11', 'B12', 'B13', 'B14', 'B15', 'B16', 'B17', 'B18', 'B19']
+
+def get_load_data_from_entsoe(regions, periodStart='202302240000', periodEnd='202303240000', output_path='./data/'):
     
     # TODO: There is a period range limit of 1 year for this API. Process in 1 year chunks if needed
     
@@ -37,7 +39,7 @@ def get_load_data_from_entsoe(regions, periodStart='202302240000', periodEnd='20
        
     return
 
-def get_gen_data_from_entsoe(regions, periodStart='202302240000', periodEnd='202303240000', output_path='./data'):
+def get_gen_data_from_entsoe(regions, periodStart='202302240000', periodEnd='202303240000', output_path='./data/'):
     
     # TODO: There is a period range limit of 1 day for this API. Process in 1 day chunks if needed
 
@@ -52,7 +54,7 @@ def get_gen_data_from_entsoe(regions, periodStart='202302240000', periodEnd='202
         'outBiddingZone_Domain': 'FILL_IN', # used for Load data
         'in_Domain': 'FILL_IN', # used for Generation data
         'periodStart': periodStart, # in the format YYYYMMDDHHMM
-        'periodEnd': periodEnd # in the format YYYYMMDDHHMM
+        'periodEnd': periodEnd, # in the format YYYYMMDDHHMM
     }
 
     # Loop through the regions and get data for each region
@@ -60,7 +62,7 @@ def get_gen_data_from_entsoe(regions, periodStart='202302240000', periodEnd='202
         print(f'Fetching data for {region}...')
         params['outBiddingZone_Domain'] = area_code
         params['in_Domain'] = area_code
-    
+
         # Use the requests library to get data from the API for the specified time range
         response_content = perform_get_request(url, params)
 
@@ -80,13 +82,13 @@ def parse_arguments():
     parser.add_argument(
         '--start_time', 
         type=lambda s: datetime.datetime.strptime(s, '%Y-%m-%d'), 
-        default=datetime.datetime(2023, 1, 1), 
+        default=datetime.datetime(2022, 1, 1), 
         help='Start time for the data to download, format: YYYY-MM-DD'
     )
     parser.add_argument(
         '--end_time', 
         type=lambda s: datetime.datetime.strptime(s, '%Y-%m-%d'), 
-        default=datetime.datetime(2023, 1, 2), 
+        default=datetime.datetime(2023, 1, 1), 
         help='End time for the data to download, format: YYYY-MM-DD'
     )
     parser.add_argument(
@@ -108,7 +110,7 @@ def main(start_time, end_time, output_path):
         'DE': '10Y1001A1001A83F',
         'DK': '10Y1001A1001A65H',
         'SE': '10YSE-1--------K',
-        'NE': '10YNL----------L',
+        'NL': '10YNL----------L',
     }
 
     # Transform start_time and end_time to the format required by the API: YYYYMMDDHHMM
