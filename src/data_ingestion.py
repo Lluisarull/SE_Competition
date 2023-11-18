@@ -1,7 +1,7 @@
 import argparse
 import datetime
 import pandas as pd
-from utils import perform_get_request, xml_to_load_dataframe, xml_to_gen_data, check_time_granularity
+from utils import perform_get_request, xml_to_load_dataframe, xml_to_gen_data
 
 green_energy = ['B01', 'B09', 'B10', 'B11', 'B12', 'B13', 'B14', 'B15', 'B16', 'B17', 'B18', 'B19']
 
@@ -55,7 +55,6 @@ def get_gen_data_from_entsoe(regions, periodStart='202302240000', periodEnd='202
         'in_Domain': 'FILL_IN', # used for Generation data
         'periodStart': periodStart, # in the format YYYYMMDDHHMM
         'periodEnd': periodEnd, # in the format YYYYMMDDHHMM
-        'PsrType': 'FILL_IN' # only download green energy
     }
 
     # Loop through the regions and get data for each region
@@ -64,26 +63,16 @@ def get_gen_data_from_entsoe(regions, periodStart='202302240000', periodEnd='202
         params['outBiddingZone_Domain'] = area_code
         params['in_Domain'] = area_code
 
-        # only get green energy generation data
-        for energy in green_energy:
-            params['PsrType'] = energy
-    
-            # Use the requests library to get data from the API for the specified time range
-            response_content = perform_get_request(url, params)
+        # Use the requests library to get data from the API for the specified time range
+        response_content = perform_get_request(url, params)
 
-            # Response content is a string of XML data
-            dfs = xml_to_gen_data(response_content)
+        # Response content is a string of XML data
+        dfs = xml_to_gen_data(response_content)
 
-            try:
-                print(check_time_granularity(dfs[energy]['StartTime'].loc[0], dfs[energy]['EndTime'].loc[0]))
-            except:
-                pass
-                
-
-            # Save the dfs to CSV files
-            #for psr_type, df in dfs.items():
-                # Save the DataFrame to a CSV file
-                #df.to_csv(f'{output_path}/gen_{region}_{psr_type}.csv', index=False)
+        # Save the dfs to CSV files
+        for psr_type, df in dfs.items():
+            # Save the DataFrame to a CSV file
+            df.to_csv(f'{output_path}/gen_{region}_{psr_type}.csv', index=False)
     
     return
 
@@ -93,13 +82,13 @@ def parse_arguments():
     parser.add_argument(
         '--start_time', 
         type=lambda s: datetime.datetime.strptime(s, '%Y-%m-%d'), 
-        default=datetime.datetime(2023, 1, 1), 
+        default=datetime.datetime(2022, 1, 1), 
         help='Start time for the data to download, format: YYYY-MM-DD'
     )
     parser.add_argument(
         '--end_time', 
         type=lambda s: datetime.datetime.strptime(s, '%Y-%m-%d'), 
-        default=datetime.datetime(2023, 1, 2), 
+        default=datetime.datetime(2022, 1, 2), 
         help='End time for the data to download, format: YYYY-MM-DD'
     )
     parser.add_argument(
@@ -121,7 +110,7 @@ def main(start_time, end_time, output_path):
         'DE': '10Y1001A1001A83F',
         'DK': '10Y1001A1001A65H',
         'SE': '10YSE-1--------K',
-        'NE': '10YNL----------L',
+        'NL': '10YNL----------L',
     }
 
     # Transform start_time and end_time to the format required by the API: YYYYMMDDHHMM
@@ -129,7 +118,7 @@ def main(start_time, end_time, output_path):
     end_time = end_time.strftime('%Y%m%d%H%M')
 
     # Get Load data from ENTSO-E
-    #get_load_data_from_entsoe(regions, start_time, end_time, output_path)
+    get_load_data_from_entsoe(regions, start_time, end_time, output_path)
 
     # Get Generation data from ENTSO-E
     get_gen_data_from_entsoe(regions, start_time, end_time, output_path)
