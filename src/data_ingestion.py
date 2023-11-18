@@ -1,7 +1,7 @@
 import argparse
 import datetime
 import pandas as pd
-from utils import perform_get_request, xml_to_load_dataframe, xml_to_gen_data
+from utils import perform_get_request, xml_to_load_dataframe, xml_to_gen_data, check_time_granularity
 
 green_energy = ['B01', 'B09', 'B10', 'B11', 'B12', 'B13', 'B14', 'B15', 'B16', 'B17', 'B18', 'B19']
 
@@ -74,10 +74,16 @@ def get_gen_data_from_entsoe(regions, periodStart='202302240000', periodEnd='202
             # Response content is a string of XML data
             dfs = xml_to_gen_data(response_content)
 
+            try:
+                print(check_time_granularity(dfs[energy]['StartTime'].loc[0], dfs[energy]['EndTime'].loc[0]))
+            except:
+                pass
+                
+
             # Save the dfs to CSV files
-            for psr_type, df in dfs.items():
+            #for psr_type, df in dfs.items():
                 # Save the DataFrame to a CSV file
-                df.to_csv(f'{output_path}/gen_{region}_{psr_type}.csv', index=False)
+                #df.to_csv(f'{output_path}/gen_{region}_{psr_type}.csv', index=False)
     
     return
 
