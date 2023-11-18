@@ -12,7 +12,7 @@ country_ids = {
 'SE': 4, # Sweden
 'IT': 6, # Italy
 'PO': 7, # Poland
-'NE': 8 # Netherlands
+'NL': 8 # Netherlands
 }
 
 bad_files = ['test.csv', 'master_gen.csv', 'master_load.csv']
