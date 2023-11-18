@@ -120,3 +120,13 @@ def perform_get_request(base_url, params):
         return response.text
     else:
         return response.content
+
+def check_time_granularity(starttime, endtime):
+    start = datetime.strptime(starttime, "%Y-%m-%dT%H:%M+%S:00Z")
+    end = datetime.strptime(endtime, "%Y-%m-%dT%H:%M+%S:00Z")
+    elapsed = end - start
+    minutes_elapsed = elapsed.total_seconds() / 60
+    return minutes_elapsed
+
+
+
