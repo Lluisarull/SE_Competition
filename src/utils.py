@@ -130,18 +130,14 @@ def check_hourly_interval(df):
     if not df.empty:
         df['StartTime'] = pd.to_datetime(df['StartTime'], format = "%Y-%m-%dT%H:%M+%S:00Z")
         df['EndTime'] = pd.to_datetime(df['EndTime'], format = "%Y-%m-%dT%H:%M+%S:00Z")
-        interval = check_time_granularity(df.StartTime.loc[0], df.EndTime.loc[0])
-        if interval < 60.0:
-            df['EndTimeHour'] = df['EndTime'].dt.ceil("H")
-            qagg = df[['quantity', 'EndTimeHour']]
-            qagg.set_index('EndTimeHour', inplace = True)
-            qagg = qagg.groupby('EndTimeHour').sum()
-            df.drop_duplicates(subset='EndTimeHour', inplace=True)
-            df = pd.merge(df[['EndTimeHour', 'AreaID', 'UnitName', 'PsrType']], qagg, on = 'EndTimeHour', how = 'left')
-            df.rename({'EndTimeHour': 'Time'}, inplace = True, axis = 1)
-        else:
-            df.rename({'EndTime': 'Time'}, inplace = True, axis = 1)
-            df = df[['Time', 'AreaID', 'UnitName', 'PsrType', 'quantity']]
+        df['EndTimeHour'] = df['EndTime'].dt.ceil("H")
+        qagg = df[['quantity', 'EndTimeHour']]
+        qagg.set_index('EndTimeHour', inplace = True)
+        qagg = qagg.groupby('EndTimeHour').sum()
+        df.drop_duplicates(subset='EndTimeHour', inplace=True)
+        df = pd.merge(df[['EndTimeHour', 'AreaID', 'UnitName', 'PsrType']], qagg, on = 'EndTimeHour', how = 'left')
+        df.rename({'EndTimeHour': 'Time'}, inplace = True, axis = 1)
+        df = df[['Time', 'AreaID', 'UnitName', 'PsrType', 'quantity']]
     else:
         return pd.DataFrame(columns = ['Time', 'AreaID', 'UnitName', 'PsrType', 'quantity'])
     return df
