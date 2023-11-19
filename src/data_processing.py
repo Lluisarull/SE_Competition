@@ -43,44 +43,41 @@ def extract_time(data, time_column):
     
     return _data
 
-def lag_agg_day(data, time_column, groupby_variable, variable, n_lags, agg_method):
+def lag_agg_day(data, time_column, groupby_variable, variable, n_lags, agg_method, new_col_name):
     '''Lags and aggregates data based on the day without considering day of the week.
     It applies aggregation methods like mean or sum based on the agg_method parameter.'''
     _data = data.copy()
     _data.set_index(time_column, inplace=True)
     if agg_method == 'mean':
-        new_column = _data.groupby([_data.index.hour, groupby_variable], sort=False)[variable].apply(lambda x: x.shift(1).rolling(n_lags).mean())
+        _data[new_col_name] = _data.groupby([_data.index.hour, groupby_variable], sort=False)[variable].transform(lambda x: x.shift(1).rolling(n_lags).mean())
     elif agg_method =='sum':
-        new_column = _data.groupby([_data.index.hour, groupby_variable], sort=False)[variable].apply(lambda x: x.shift(1).rolling(n_lags).sum())
-    new_column.index = _data.index
-    _data = pd.concat([_data, new_column], axis=1)
+        _data[new_col_name] = _data.groupby([_data.index.hour, groupby_variable], sort=False)[variable].transform(lambda x: x.shift(1).rolling(n_lags).sum())
+    _data.reset_index(inplace=True)
     return _data
 
-def lag_agg_dayofweek(data, time_column, groupby_variable, variable, n_lags, agg_method):
-     '''Lags and aggregates data based on the day of the week.
+def lag_agg_dayofweek(data, time_column, groupby_variable, variable, n_lags, agg_method, new_col_name):
+    '''Lags and aggregates data based on the day of the week.
     It applies aggregation methods like mean or sum based on the agg_method parameter.'''
-
     _data = data.copy()
     _data.set_index(time_column, inplace=True)
     if agg_method == 'mean':
-        new_column = _data.groupby([_data.index.hour, _data.index.dayofweek, groupby_variable], sort=False)[variable].apply(lambda x: x.shift(1).rolling(n_lags).mean())
+        _data[new_col_name] = _data.groupby([_data.index.hour, _data.index.dayofweek, groupby_variable], sort=False)[variable].transform(lambda x: x.shift(1).rolling(n_lags).mean())
     elif agg_method =='sum':
-        new_column = _data.groupby([_data.index.hour, _data.index.dayofweek, groupby_variable], sort=False)[variable].apply(lambda x: x.shift(1).rolling(n_lags).sum())
-    new_column.index = _data.index
-    _data = pd.concat([_data, new_column], axis=1)
+        _data[new_col_name] = _data.groupby([_data.index.hour, _data.index.dayofweek, groupby_variable], sort=False)[variable].transform(lambda x: x.shift(1).rolling(n_lags).sum())
+
+    _data.reset_index(inplace=True)
     return _data
 
-def lag_agg(data, time_column, groupby_variable, variable, n_lags, agg_method):
+def lag_agg(data, time_column, groupby_variable, variable, n_lags, agg_method, new_col_name):
     '''Lags and aggregates data based on a specified variable.
     It applies aggregation methods like mean or sum based on the agg_method parameter.'''
     _data = data.copy()
     _data.set_index(time_column, inplace=True)
     if agg_method == 'mean':
-        new_column = _data.groupby([groupby_variable], sort=False)[variable].apply(lambda x: x.rolling(n_lags).mean())
+        _data[new_col_name] = _data.groupby([groupby_variable], sort=False)[variable].transform(lambda x: x.rolling(n_lags).mean())
     elif agg_method =='sum':
-        new_column = _data.groupby([groupby_variable], sort=False)[variable].apply(lambda x: x.rolling(n_lags).sum())
-    new_column.index = _data.index
-    _data = pd.concat([_data, new_column], axis=1)
+        _data[new_col_name] = _data.groupby([groupby_variable], sort=False)[variable].transform(lambda x: x.rolling(n_lags).sum())
+    _data.reset_index(inplace=True)
     return _data
 
 def parse_arguments():
