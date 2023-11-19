@@ -177,7 +177,7 @@ def parse_arguments():
     parser.add_argument(
         '--surplus_scaler_file', 
         type=str, 
-        default='models/surplus_scaler.csv', 
+        default='models/surplus_scaler.gz', 
         help='Path to save the RobustScaler for the target variable.'
     )
     return parser.parse_args()
