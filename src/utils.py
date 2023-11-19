@@ -4,6 +4,19 @@ import xml.etree.ElementTree as ET
 import pandas as pd
 from datetime import datetime, timedelta
 
+
+country_ids = {
+'SP': 0, # Spain
+'UK': 1, # United Kingdom
+'DE': 2, # Germany
+'DK': 3, # Denmark
+'HU': 5, # Hungary
+'SE': 4, # Sweden
+'IT': 6, # Italy
+'PO': 7, # Poland
+'NL': 8 # Netherlands
+}
+
 def xml_to_gen_data(xml_data) -> dict:
     """
     Parse the XML data of generation into a dictionary of DataFrames, one for each PsrType.
@@ -127,6 +140,7 @@ def check_time_granularity(starttime, endtime):
     return minutes_elapsed
 
 def check_hourly_interval(df):
+    # aggregates the dataframe to the hourly level
     if not df.empty:
         df['StartTime'] = pd.to_datetime(df['StartTime'], format = "%Y-%m-%dT%H:%M+%S:00Z")
         df['EndTime'] = pd.to_datetime(df['EndTime'], format = "%Y-%m-%dT%H:%M+%S:00Z")
@@ -141,6 +155,8 @@ def check_hourly_interval(df):
     else:
         return pd.DataFrame(columns = ['Time', 'AreaID', 'UnitName', 'PsrType', 'quantity'])
     return df
+
+
 
 
 

@@ -1,9 +1,23 @@
 import argparse
 import datetime
 import pandas as pd
-from utils import perform_get_request, xml_to_load_dataframe, xml_to_gen_data
+from utils import perform_get_request, xml_to_load_dataframe, xml_to_gen_data, check_hourly_interval
+import os
 
-green_energy = ['B01', 'B09', 'B10', 'B11', 'B12', 'B13', 'B14', 'B15', 'B16', 'B17', 'B18', 'B19']
+bad_files = ['test.csv', 'master_gen.csv', 'master_load.csv']
+
+country_ids = {
+'SP': 0, # Spain
+'UK': 1, # United Kingdom
+'DE': 2, # Germany
+'DK': 3, # Denmark
+'HU': 5, # Hungary
+'SE': 4, # Sweden
+'IT': 6, # Italy
+'PO': 7, # Poland
+'NL': 8 # Netherlands
+}
+
 
 def get_load_data_from_entsoe(regions, periodStart='202302240000', periodEnd='202303240000', output_path='./data/'):
     
@@ -76,6 +90,44 @@ def get_gen_data_from_entsoe(regions, periodStart='202302240000', periodEnd='202
     
     return
 
+def csv_agg(country_ids, output_path):
+    # code to standardize and aggregate the csv files downloaded from the API
+    no_touchy = ['test.csv', 'master_gen.csv', 'master_load.csv']
+    agg_gen_files(output_path, no_touchy, country_ids)
+    agg_load_files(output_path, no_touchy, country_ids)
+
+    return 
+
+def agg_gen_files(output_path, bad_files, country_ids):
+    #aggregates energy generation files
+    print("Aggregating generation csv files")
+    master = pd.DataFrame()
+    for item in os.listdir(output_path):
+        if item not in bad_files and 'gen' in item:
+            print(f'Processing {item}')
+            df = pd.read_csv(output_path + item)
+            df = check_hourly_interval(df)
+            df['CountryID'] = country_ids[item[4:6]]
+            master = pd.concat([master, df], ignore_index = True)
+    master.to_csv(output_path + 'master_gen.csv')
+    return
+
+def agg_load_files(output_path, bad_files, country_ids):
+    #aggregates energy consumption files
+    print("Aggregating consumption csv files")
+    master = pd.DataFrame()
+    for item in os.listdir(output_path):
+        if item not in bad_files and 'load' in item:
+            print(f'Processing {item}')
+            df = pd.read_csv(output_path + item)
+            df.insert(4, 'PsrType', 'All')
+            df.rename({'Load':'quantity'}, inplace = True, axis = 1)
+            df = check_hourly_interval(df)
+            df['CountryID'] = country_ids[item[5:7]]
+            master = pd.concat([master, df], ignore_index = True, sort = True)
+    master.to_csv(output_path + 'master_load.csv')
+    return
+
 
 def parse_arguments():
     parser = argparse.ArgumentParser(description='Data ingestion script for Energy Forecasting Hackathon')
@@ -113,6 +165,18 @@ def main(start_time, end_time, output_path):
         'NL': '10YNL----------L',
     }
 
+    country_ids = {
+        'SP': 0, # Spain
+        'UK': 1, # United Kingdom
+        'DE': 2, # Germany
+        'DK': 3, # Denmark
+        'HU': 5, # Hungary
+        'SE': 4, # Sweden
+        'IT': 6, # Italy
+        'PO': 7, # Poland
+        'NL': 8 # Netherlands
+    }
+
     # Transform start_time and end_time to the format required by the API: YYYYMMDDHHMM
     start_time = start_time.strftime('%Y%m%d%H%M')
     end_time = end_time.strftime('%Y%m%d%H%M')
@@ -122,6 +186,8 @@ def main(start_time, end_time, output_path):
 
     # Get Generation data from ENTSO-E
     get_gen_data_from_entsoe(regions, start_time, end_time, output_path)
+
+    csv_agg(country_ids, output_path)
 
 if __name__ == "__main__":
     args = parse_arguments()
