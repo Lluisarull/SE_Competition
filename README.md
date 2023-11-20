@@ -3,14 +3,13 @@
 ## Introduction
 This respository is part of our submission for the 2023 NUWE Schneider Electric European Data Science Challenge: EcoForecast: Revolutionizing Green Energy Surplus Prediction in Europe.
 
-We tried to follow the guidelines and reccommendations as close as possible however there were a few things that we should note that are deviations.
+We tried to follow the guidelines and recommendations as close as possible however there were a few things that we should note that are deviations:
 
 #### Ommitting UK
 The United Kingdom appeared to be missing Load data from July 2022 onward, which made the country's data unusable. If we were to include their data in the forecast, we would likely forecast the Load as zero and the green energy as positive. Thus, the UK would always have the largest surplus.
 
 #### Predictions
 We were unable to come up with the 442 test set predictions. Because of this, we now are submitting 2 json files consisting of 1752 observations: one indexed using simply the numbers, similar to the requested formatting, and another indexed using Timestamps.
-
 
 ## Project Overview 
 
@@ -44,16 +43,20 @@ We aggregate the data to the hourly level.
 
 ## User Guide
 
+- You can clone this repository by running `git clone https://github.com/Lluisarull/SE_Competition` in your terminal window.
+- Before running the scripts, make sure to set up your environment, installing Python 3.10 and configure the necessary parameters according to the `requirements.txt` file.
+- To run everything, you can type `sh scripts/run_pipeline.sh 2020-01-01 2020-01-31 data/raw_data.csv data/master_gen.csv data/master_load.csv data/clean/data.csv models/model_dictionary.pickle predictions/predictions.json` in the terminal window which runs each file in the src folder.
+
+## src
 The project is structured in 4 different jobs, each of which is defined in a script in the src folder.
-
-#### Prerequisites
-
-Before running the scripts, make sure to set up your environment, installing Python 3.10 and configure the necessary parameters according to the `requirements.txt` file.
-
 
 ### Data Ingestion
 
-This project includes a data ingestion process that retrieves data from an external API.
+This project includes a data ingestion process that retrieves data from an external API. Here are the Tokens for the API:
+- b5b8c21b-a637-4e17-a8fe-0d39a16aa849
+- fb81432a-3853-4c30-a105-117c86a433ca
+- 2334f370-0c85-405e-bb90-c022445bd273
+- 1d9cd4bd-f8aa-476c-8cc1-3442dc91506d
 
 The data ingestion is handled by the `data_ingestion.py` script. This script is responsible for making API calls to download the required data. The output of the script are two csv files in the `data/raw` folder, one for the load data ('master_load.csv') and the other for the generation data ('master_gen.csv')
 
@@ -104,8 +107,4 @@ Next, the script converts the numeric predictions into categorical representatio
 
 Finally, the script saves the predictions related to the largest surplus of green energy into a JSON file as per the specified output path.
 
-# Tokens:
-- b5b8c21b-a637-4e17-a8fe-0d39a16aa849
-- fb81432a-3853-4c30-a105-117c86a433ca
-- 2334f370-0c85-405e-bb90-c022445bd273
-- 1d9cd4bd-f8aa-476c-8cc1-3442dc91506d
+Thanks to Schneider Electric for hosting this competition! We enjoyed the challenge, and we hope that this repository is sufficient.
