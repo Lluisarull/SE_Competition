@@ -148,6 +148,55 @@ def save_data(train, test, rs_y, train_output_file, test_output_file, surplus_sc
     joblib.dump(rs_y, surplus_scaler_file)
     pass
 
+def process_load_2(load_data):
+    # datetime object
+    load_data['Time'] = pd.to_datetime(load_data['Time'])
+
+    # Drop unnecessary columns
+    load_data.drop(['AreaID', 'UnitName','PsrType'], axis=1, inplace=True)
+
+    # Hour aggregation
+    load_data = hour_agg(load_data, ['CountryID'], 'Time', 'quantity')
+
+    # Create a datetime series with hourly frequency from the minimum to maximum 'Time'
+    datetime_series = pd.date_range(start=load_data['Time'].min(), end=load_data['Time'].max(), freq='H')
+
+    # Create a range of unique 'CountryID' values
+    numbers_range = load_data['CountryID'].unique()
+
+    # Create a MultiIndex from the Cartesian product of 'datetime_series' and 'numbers_range'
+    index = pd.MultiIndex.from_product([datetime_series, numbers_range], names=['Time', 'CountryID'])
+
+    # Create a DataFrame with the MultiIndex
+    df_index = pd.DataFrame(index=index).reset_index()
+
+    # Merge the created DataFrame with the MultiIndex with the original 'load_data'
+    load_data_full = df_index.merge(load_data, how='left')
+
+    return load_data_full
+
+def process_gen_2(gen_data):
+    # Datetime object
+    gen_data['Time'] = pd.to_datetime(gen_data.Time)
+    #Drop unnecessary columns
+    gen_data.drop(['AreaID', 'UnitName'], axis=1, inplace=True)
+    
+    datetime_series = pd.date_range(start=gen_data.Time.min(), end=gen_data.Time.max(), freq='H')
+    numbers_range = gen_data.CountryID.unique()
+    psr_vals = gen_data.PsrType.unique()
+
+    # Creating a multi-index from cartesian product of both ranges
+    index = pd.MultiIndex.from_product([datetime_series, numbers_range, psr_vals], names=['Time', 'CountryID', 'PsrType'])
+
+    # Creating a DataFrame with the multi-index
+    df_index = pd.DataFrame(index=index).reset_index()
+
+    gen_data_2 = df_index.merge(gen_data, how='left')
+
+    gen_data_full = gen_data_2.pivot_table(index = ['Time','CountryID'], columns= ['PsrType'], values='quantity')
+    
+    return gen_data_full
+
 def hour_agg(data, groupby_columns, time_column, value_column):
     """
     Perform hourly aggregation on the specified DataFrame.
@@ -187,6 +236,13 @@ def _fill_missing_dates(df: pd.DataFrame, min_date: pd.Timestamp, max_date: pd.T
 
     return result_df
 
+def calculate_green_energy(df):
+    green_energy = ['B01', 'B09', 'B10', 'B11', 'B12', 'B13', 'B14', 'B15', 'B16', 'B17', 'B18', 'B19']
+    df['green_energy'] = df[green_energy].sum(axis=1, skipna=True)
+    df = df[['Time', 'CountryID', 'load', 'green_energy']]
+    return df
+
+
 def pivot_and_flatten(df, index_col, country_col, value_cols, aggfunc='first'):
     """
     Pivot the DataFrame from long to wide, flatten multi-level columns, and reset the index.
@@ -211,6 +267,49 @@ def pivot_and_flatten(df, index_col, country_col, value_cols, aggfunc='first'):
     wide_df = wide_df.reset_index()
 
     return wide_df
+
+def impute_nans(df):
+    """
+    Impute NaN values in a DataFrame with specific logic:
+    - If all rows in a column are missing, set the value to 0.
+    - Otherwise, impute the NaN with the mean between the previous and the following value.
+
+    Parameters:
+    - df: Input DataFrame.
+
+    Returns:
+    - DataFrame with NaN values imputed based on the specified logic.
+    """
+    for col in df.columns:
+        # Check if all rows in the column are missing
+        if df[col].isnull().all():
+            # Set the value to 0 if all rows are missing
+            df[col] = 0
+        elif df[col].dtype == 'datetime64[ns]':
+            # Impute NaN with the mean of the datetime values
+            df[col] = df[col].fillna(df[col].mean())
+        else:
+            # Impute NaN with the mean between the previous and the following value
+            df[col] = df[col].fillna((df[col].shift() + df[col].shift(-1)) / 2)
+            df[col] = df[col].fillna(0)
+
+    return df
+
+def preprocess_data_2(load_data, gen_data):
+    load_data_full = process_load_2(load_data)
+    gen_data_full = process_gen_2(gen_data)
+    data = load_data_full.rename({'quantity':'load'}, axis=1).set_index(['CountryID','Time']).merge(gen_data_full, left_index=True, right_index=True)
+    data = data.reset_index()
+    data_clean = _fill_missing_dates(data,min_date=data['Time'].min(),max_date=data['Time'].max())
+    data_clean_2 = data_clean.groupby(['Time', 'CountryID']).apply(calculate_green_energy)
+    data_clean_2 = data_clean_2.reset_index(drop=True)
+    data_clean_wide = pivot_and_flatten(data_clean_2, index_col='Time', country_col='CountryID', value_cols=['green_energy', 'load'])
+    data_clean_wide_imputed = impute_nans(data_clean_wide)
+    return data_clean_wide_imputed
+
+def save_data_wide(data_clean_wide_imputed, data_clean_wide_imputed_file):
+    data_clean_wide_imputed.to_csv(data_clean_wide_imputed_file)
+    pass
 
 def parse_arguments():
     parser = argparse.ArgumentParser(description='Data processing script for Energy Forecasting Hackathon')
@@ -244,14 +343,23 @@ def parse_arguments():
         default='models/surplus_scaler.gz', 
         help='Path to save the RobustScaler for the target variable.'
     )
+    parser.add_argument(
+        '--data_clean_wide_imputed_file', 
+        type=str, 
+        default='data/clean/data_clean_wide_imputed_file.csv', 
+        help='Path to save the processed data in wide format.'
+    )
     return parser.parse_args()
 
-def main(input_gen_file, input_load_file, train_output_file, test_output_file, surplus_scaler_file):
+def main(input_gen_file, input_load_file, train_output_file, test_output_file, surplus_scaler_file,data_clean_wide_imputed_file):
     loaded_data, gen_data = load_data(input_load_file, input_gen_file)
     train, test, rs_y = preprocess_data(loaded_data, gen_data)
     save_data(train, test, rs_y, train_output_file, test_output_file, surplus_scaler_file)
+    loaded_data_wide, gen_data_wide = load_data(input_load_file, input_gen_file)
+    data_clean_wide_imputed = preprocess_data_2(loaded_data_wide, gen_data_wide)
+    save_data_wide(data_clean_wide_imputed, data_clean_wide_imputed_file)
+
 
 if __name__ == "__main__":
     args = parse_arguments()
-    main(args.input_gen_file, args.input_load_file, args.train_output_file, args.test_output_file, args.surplus_scaler_file)
-
+    main(args.input_gen_file, args.input_load_file, args.train_output_file, args.test_output_file, args.surplus_scaler_file,args.data_clean_wide_imputed_file)
