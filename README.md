@@ -12,7 +12,7 @@ In this repository we use data from the ENTSO-E Transparency portal to predict w
 The structure of the repository is as follows:
 
 
-`
+
 |-- README.md
 |-- requirements.txt
 |
@@ -36,7 +36,7 @@ The structure of the repository is as follows:
 |-- predictions
     |-- example_predictions.json
     |-- predictions.json
-`
+
 
 We aggregate the data to the hourly level.
 
