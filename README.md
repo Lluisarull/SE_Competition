@@ -56,8 +56,17 @@ Ensure that you have configured the API endpoint and authentication credentials.
 
 ### Data Processing
 
-The next step in the pipeline is the data processing. Here, both the load and generation data are loaded and two different preprocessing methods are carried out. The first one includes feature engineering and outputs a dataframe in a long format whith a 'CountryID' column and all the other columns contain features of that country at each point in time. This dataframe has been splited up in a train and test set (80-20% respectively) and has been the one used to train the model. The second preprocessing technique outputs a dataframe in a wide format. 
+#### Energy Generation Processing
 
+The script begins by loading and processing the raw energy generation data. It cleans the dataset by converting the 'Time' column to datetime format, dropping unnecessary columns, interpolating missing values, and filtering for specific types of green energy sources.
+
+#### Load File Processing
+
+Similarly, the script handles the raw load data. It converts the 'Time' column to datetime format, removes unnecessary columns, ensures all timestamps are present, interpolates missing values, and prepares the dataset.
+Merging Them Together
+
+#### Merging them together
+After processing both the generation and load data separately, the script merges these datasets based on timestamps and relevant columns. It combines the cleaned load and generation data into a single dataset, focusing on specific green energy sources, and finally saves the processed data into a CSV file.
 
 ### Model Training
 
