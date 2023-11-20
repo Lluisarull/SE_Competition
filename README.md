@@ -13,8 +13,7 @@ The structure of the repository is as follows:
 
 
 
-|-- README.md
-
+`|-- README.md
 |-- requirements.txt
 
 |-- data
