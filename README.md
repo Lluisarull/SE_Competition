@@ -46,7 +46,7 @@ The structure of the repository is as follows:
 
     |-- example_predictions.json
 
-    |-- predictions.json
+    |-- predictions.json`
 
 
 We aggregate the data to the hourly level.
