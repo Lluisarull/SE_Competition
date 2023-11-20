@@ -1,7 +1,9 @@
 import argparse
+import numpy as np
+import pandas as pd
 
 def load_data(file_path):
-    # TODO: Load data from CSV file
+    
 
     return df
 
