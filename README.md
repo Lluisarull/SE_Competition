@@ -38,18 +38,17 @@ We aggregate the data to the hourly level.
 
 The project is structured in 4 different jobs, each of which is defined in a script in the src folder.
 
+#### Prerequisites
+
+Before running the scripts, make sure to set up your environment, installing Python 3.10 and configure the necessary parameters according to the `requirements.txt` file.
+
+
 ### Data Ingestion
 
 This project includes a data ingestion process that retrieves data from an external API.
 
 The data ingestion is handled by the `data_ingestion.py` script. This script is responsible for making API calls to download the required data. The output of the script are two csv files in the `data/raw` folder, one for the load data ('master_load.csv') and the other for the generation data ('master_gen.csv')
 
-Before running the data ingestion script, make sure to set up your environment and configure the necessary parameters according to the `requirements.txt` file.
-
-#### Prerequisites
-
-- Python 3.10
-- Dependencies (list any additional dependencies)
 
 #### Configuration
 
