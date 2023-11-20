@@ -1,42 +1,49 @@
 import pandas as pd
-from sklearn.neighbors import KNeighborsClassifier, KNeighborsRegressor
-from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
-from sklearn.svm import SVC, SVR
-import xgboost
-import numpy as np
 import pickle
-from sklearn.metrics import mean_squared_error
+import numpy as np
+from scalecast.Forecaster import Forecaster
 import argparse
 
-def load_data(file_path, dim):
-    if dim == 'tall':
-        df = pd.read_csv(file_path).set_index(['Time','CountryID'])
-    elif dim == 'wide':
-        df = pd.read_csv(file_path)
+def load_data(file_path):
+    df = pd.read_csv(file_path).set_index(['CountryID', 'Time'])
     return df
 
-def split_data(df, feature_set, target):
-    # keep sequential order of data
-    df.sort_values(by='Time', inplace = True) 
-    # 80/20 split
-    train_size = int(len(df) * 0.8)
-    #split data
-    X_train, X_val, y_train, y_val = df[feature_set][:train_size], df[feature_set][train_size:], df[[target]][:train_size], df[[target]][train_size:]
-    return X_train, X_val, y_train, y_val
+def train_model(y_var, estimator = 'lasso'):
+    f = Forecaster(
+    y = y_var,
+    current_dates = y_var.index,
+    future_dates=1,
+    metrics = ['rmse'])
 
-def create_rf_model(task, params = {}):
-    if task == 'regression':
-      return RandomForestRegressor().set_params(**params)
-    if task == 'class':
-      return RandomForestClassifier().set_params(**params)
+    f.add_time_trend()
+    f.add_seasonal_regressors('week',raw=False,sincos=True)
+    f.add_seasonal_regressors('day',raw=False,sincos=True)
+    f.add_ar_terms(72)
+    f.set_test_length(.2)
 
-def train_model(X_train, y_train, model):
-    model.fit(X_train, np.array(y_train).ravel())
-    return model 
+    f.set_estimator(estimator)
+    f.manual_forecast(dynamic_testing=1)
+    
+    return f
 
-def save_model(model, model_path):
-    with open(model_path, 'wb') as model_file:
-        pickle.dump(model, model_path)
+def train_all_models(data):
+
+    country_ids = data.reset_index().CountryID.unique()
+    loads_energies = data.columns.tolist()
+
+    models = {}
+    for country_id in country_ids:
+        models.update({country_id:{}})
+    for country_id in country_ids:
+        for energy_type in loads_energies:
+            y_var = data.query('CountryID == @country_id')[energy_type].reset_index().drop('CountryID', axis=1).set_index('Time')[energy_type]
+            model_object = train_model(y_var)
+            models[country_id].update({energy_type:model_object})
+    return models
+
+def save_model(models, filepath):
+    with open(filepath, 'wb') as handle:
+        pickle.dump(models, handle, protocol=pickle.HIGHEST_PROTOCOL)
     pass
 
 def parse_arguments():
@@ -44,52 +51,26 @@ def parse_arguments():
     parser.add_argument(
         '--input_file', 
         type=str, 
-        default='data/processed_data.csv', 
+        default='data/clean/data.csv', 
         help='Path to the processed data file to train the model'
     )
     parser.add_argument(
         '--model_file', 
         type=str, 
-        default='models/model.pkl', 
+        default='models/model_dictionary.pickle', 
         help='Path to save the trained model'
     )
-    parser.add_argument(
-        '--file_dim', 
-        type=str, 
-        default='tall', 
-        help='Dimension type of dataset'
-    )
-    parser.add_argument(
-        '--target', 
-        type=str, 
-        default='', 
-        help='variable to predict'
-    )
-    parser.add_argument(
-        '--model', 
-        type=str, 
-        default='rf', 
-        help='model to use'
-    )    
+
     return parser.parse_args()
 
-def main(input_file, model_file, dim, target, model):
+def main(input_file, model_file):
 
-    tall_rf_params = {'max_depth': 30, 'min_samples_leaf': 1, 'min_samples_split': 2, 'n_estimators': 200}
+    data = load_data(input_file)
 
-    df = load_data(input_file, dim)
-
-    feature_set = list(set(df.columns) - set([target]))
-
-    X_train, X_val, y_train, y_val = split_data(df, feature_set, target)
-
-    if model == 'rf' and dim == 'tall':
-        m = create_rf_model(dim, tall_rf_params)
-
-    model = train_model(X_train, y_train, m)
+    model = train_all_models(data)
 
     save_model(model, model_file)
 
 if __name__ == "__main__":
     args = parse_arguments()
-    main(args.input_file, args.model_file, args.dim, args.target, args.model)
+    main(args.input_file, args.model_file)
