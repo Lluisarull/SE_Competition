@@ -13,29 +13,29 @@ The structure of the repository is as follows:
 
 
 `
-|__README.md
-|__requirements.txt
+|-- README.md
+|-- requirements.txt
 |
-|__data
-|  |__your_train.csv
-|  |__test.csv
+|-- data
+|   |-- your_train.csv
+|   |-- test.csv
 |
-|__src
-|  |__data_ingestion.py
-|  |__data_processing.py
-|  |__model_training.py (or model_training.ipynb)
-|  |__model_prediction.py
-|  |__utils.py
+|-- src
+|   |-- data_ingestion.py
+|   |-- data_processing.py
+|   |-- model_training.py (or model_training.ipynb)
+|   |-- model_prediction.py
+|   |-- utils.py
 |
-|__models
-|  |__model.pkl
+|-- models
+|   |-- model.pkl
 |
-|__scripts
-|  |__run_pipeline.sh
+|-- scripts
+|   |-- run_pipeline.sh
 |
-|__predictions
-   |__example_predictions.json
-   |__predictions.json
+|-- predictions
+    |-- example_predictions.json
+    |-- predictions.json
 `
 
 We aggregate the data to the hourly level.
