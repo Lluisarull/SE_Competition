@@ -5,6 +5,19 @@ import pandas as pd
 from datetime import datetime, timedelta
 import numpy as np
 
+
+country_ids = {
+'SP': 0, # Spain
+'UK': 1, # United Kingdom
+'DE': 2, # Germany
+'DK': 3, # Denmark
+'HU': 5, # Hungary
+'SE': 4, # Sweden
+'IT': 6, # Italy
+'PO': 7, # Poland
+'NL': 8 # Netherlands
+}
+
 def xml_to_gen_data(xml_data) -> dict:
     """
     Parse the XML data of generation into a dictionary of DataFrames, one for each PsrType.
@@ -128,21 +141,18 @@ def check_time_granularity(starttime, endtime):
     return minutes_elapsed
 
 def check_hourly_interval(df):
+    # aggregates the dataframe to the hourly level
     if not df.empty:
         df['StartTime'] = pd.to_datetime(df['StartTime'], format = "%Y-%m-%dT%H:%M+%S:00Z")
         df['EndTime'] = pd.to_datetime(df['EndTime'], format = "%Y-%m-%dT%H:%M+%S:00Z")
-        interval = check_time_granularity(df.StartTime.loc[0], df.EndTime.loc[0])
-        if interval < 60.0:
-            df['EndTimeHour'] = df['EndTime'].dt.ceil("H")
-            qagg = df[['quantity', 'EndTimeHour']]
-            qagg.set_index('EndTimeHour', inplace = True)
-            qagg = qagg.groupby('EndTimeHour').sum()
-            df.drop_duplicates(subset='EndTimeHour', inplace=True)
-            df = pd.merge(df[['EndTimeHour', 'AreaID', 'UnitName', 'PsrType']], qagg, on = 'EndTimeHour', how = 'left')
-            df.rename({'EndTimeHour': 'Time'}, inplace = True, axis = 1)
-        else:
-            df.rename({'EndTime': 'Time'}, inplace = True, axis = 1)
-            df = df[['Time', 'AreaID', 'UnitName', 'PsrType', 'quantity']]
+        df['EndTimeHour'] = df['EndTime'].dt.ceil("H")
+        qagg = df[['quantity', 'EndTimeHour']]
+        qagg.set_index('EndTimeHour', inplace = True)
+        qagg = qagg.groupby('EndTimeHour').sum()
+        df.drop_duplicates(subset='EndTimeHour', inplace=True)
+        df = pd.merge(df[['EndTimeHour', 'AreaID', 'UnitName', 'PsrType']], qagg, on = 'EndTimeHour', how = 'left')
+        df.rename({'EndTimeHour': 'Time'}, inplace = True, axis = 1)
+        df = df[['Time', 'AreaID', 'UnitName', 'PsrType', 'quantity']]
     else:
         return pd.DataFrame(columns = ['Time', 'AreaID', 'UnitName', 'PsrType', 'quantity'])
     return df
@@ -215,5 +225,7 @@ def drop_none_indices(dataframe):
     good_index = dataframe.index.to_frame().reset_index(drop=True)[filtered_names]
     dataframe = pd.concat([dataframe.reset_index(drop=True), good_index], axis=1).set_index(good_index.columns.tolist())
     return dataframe
+
+
 
 

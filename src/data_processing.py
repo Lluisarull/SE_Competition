@@ -148,6 +148,70 @@ def save_data(train, test, rs_y, train_output_file, test_output_file, surplus_sc
     joblib.dump(rs_y, surplus_scaler_file)
     pass
 
+def hour_agg(data, groupby_columns, time_column, value_column):
+    """
+    Perform hourly aggregation on the specified DataFrame.
+
+    Parameters:
+    - data: DataFrame to be aggregated.
+    - groupby_columns: List of columns to group by.
+    - time_column: Name of the time column.
+    - value_column: Name of the column to aggregate.
+
+    Returns:
+    - Aggregated DataFrame.
+    """
+    return (
+        data.groupby([*groupby_columns, data[time_column].dt.round('H')], sort=False)
+            .agg({value_column: 'sum'})
+            .reset_index()
+    )
+
+def _fill_missing_dates(df: pd.DataFrame, min_date: pd.Timestamp, max_date: pd.Timestamp) -> pd.DataFrame:
+    """Fill missing dates in the time series between the minimum and maximum dates and set their
+    values to NaN.
+
+    :param df: Time series sales data for a specific country-brand.
+    :param min_date: Minimum date to be considered.
+    :param max_date: Maximum date to be considered.
+    :return: Complete time series for a specific country-type.
+    """
+
+    df['Time'] = pd.to_datetime(df['Time'])
+    complete_date_range = pd.date_range(start=min_date, end=max_date, freq='H')
+    complete_df = (
+        pd.DataFrame({'Time': complete_date_range})
+        .merge(df[['CountryID']].drop_duplicates(), how='cross')
+    )
+    result_df = complete_df.merge(df, on=['Time', 'CountryID'], how='left')
+
+    return result_df
+
+def pivot_and_flatten(df, index_col, country_col, value_cols, aggfunc='first'):
+    """
+    Pivot the DataFrame from long to wide, flatten multi-level columns, and reset the index.
+
+    Parameters:
+    - df: Input DataFrame.
+    - index_col: Column to be used as the index in the wide DataFrame.
+    - country_col: Column to be used as columns in the wide DataFrame.
+    - value_cols: List of columns to be used as values in the wide DataFrame.
+    - aggfunc: Aggregation function for pivot_table.
+
+    Returns:
+    - Wide DataFrame with flattened columns and reset index.
+    """
+    # Pivot the DataFrame from long to wide
+    wide_df = df.pivot_table(index=index_col, columns=country_col, values=value_cols, aggfunc=aggfunc)
+
+    # Flatten the multi-level columns
+    wide_df.columns = [f'{col}_{country}' for col, country in wide_df.columns]
+
+    # Resetting the index
+    wide_df = wide_df.reset_index()
+
+    return wide_df
+
 def parse_arguments():
     parser = argparse.ArgumentParser(description='Data processing script for Energy Forecasting Hackathon')
     parser.add_argument(
@@ -190,3 +254,4 @@ def main(input_gen_file, input_load_file, train_output_file, test_output_file, s
 if __name__ == "__main__":
     args = parse_arguments()
     main(args.input_gen_file, args.input_load_file, args.train_output_file, args.test_output_file, args.surplus_scaler_file)
+
