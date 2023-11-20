@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 import xml.etree.ElementTree as ET
 import pandas as pd
 from datetime import datetime, timedelta
+import numpy as np
 
 
 country_ids = {
@@ -157,6 +158,73 @@ def check_hourly_interval(df):
     return df
 
 
+def extract_time(data, time_column):
+    '''This function assumes that time is in a datetime format. 
+        It takes this datetime column and extracts the following in a sin_cos format:
+        - Month
+        - Day of week
+        - Hour
+    '''
+    _data = data.copy()
+    # Extracting month, day of week, and hour from the datetime column
+    _data['Month_sin'] = np.sin(2 * np.pi * data[time_column].dt.month / 12)
+    _data['Month_cos'] = np.cos(2 * np.pi * data[time_column].dt.month / 12)
+    
+    _data['DayOfWeek_sin'] = np.sin(2 * np.pi * data[time_column].dt.dayofweek / 7)
+    _data['DayOfWeek_cos'] = np.cos(2 * np.pi * data[time_column].dt.dayofweek / 7)
+    
+    _data['Hour_sin'] = np.sin(2 * np.pi * data[time_column].dt.hour / 24)
+    _data['Hour_cos'] = np.cos(2 * np.pi * data[time_column].dt.hour / 24)
+    
+    # Dropping the original time column
+    # data.drop(columns=[time_column], inplace=True) # Uncomment if you want to drop the original time column
+    
+    return _data
+
+def lag_agg_day(data, time_column, groupby_variable, variable, n_lags, agg_method, new_col_name):
+    '''Lags and aggregates data based on the day without considering day of the week.
+    It applies aggregation methods like mean or sum based on the agg_method parameter.'''
+    _data = data.copy()
+    _data.set_index(time_column, inplace=True)
+    if agg_method == 'mean':
+        _data[new_col_name] = _data.groupby([_data.index.hour, groupby_variable], sort=False)[variable].transform(lambda x: x.shift(1).rolling(n_lags).mean())
+    elif agg_method =='sum':
+        _data[new_col_name] = _data.groupby([_data.index.hour, groupby_variable], sort=False)[variable].transform(lambda x: x.shift(1).rolling(n_lags).sum())
+    _data.reset_index(inplace=True)
+    return _data
+
+def lag_agg_dayofweek(data, time_column, groupby_variable, variable, n_lags, agg_method, new_col_name):
+    '''Lags and aggregates data based on the day of the week.
+    It applies aggregation methods like mean or sum based on the agg_method parameter.'''
+    _data = data.copy()
+    _data.set_index(time_column, inplace=True)
+    if agg_method == 'mean':
+        _data[new_col_name] = _data.groupby([_data.index.hour, _data.index.dayofweek, groupby_variable], sort=False)[variable].transform(lambda x: x.shift(1).rolling(n_lags).mean())
+    elif agg_method =='sum':
+        _data[new_col_name] = _data.groupby([_data.index.hour, _data.index.dayofweek, groupby_variable], sort=False)[variable].transform(lambda x: x.shift(1).rolling(n_lags).sum())
+    _data.reset_index(inplace=True)
+    return _data
+
+def lag_agg(data, time_column, groupby_variable, variable, n_lags, agg_method, new_col_name):
+    '''Lags and aggregates data based on a specified variable.
+    It applies aggregation methods like mean or sum based on the agg_method parameter.'''
+    _data = data.copy()
+    _data.set_index(time_column, inplace=True)
+    if agg_method == 'mean':
+        _data[new_col_name] = _data.groupby([groupby_variable], sort=False)[variable].transform(lambda x: x.rolling(n_lags).mean())
+    elif agg_method =='sum':
+        _data[new_col_name] = _data.groupby([groupby_variable], sort=False)[variable].transform(lambda x: x.rolling(n_lags).sum())
+    _data.reset_index(inplace=True)
+    return _data
+
+def drop_none_indices(dataframe):
+    index_names = list(dataframe.index.names)
+    index_df_names = dataframe.index.to_frame().reset_index(drop=True).columns.to_list()
+    filtered_names = [x for x in index_names if x in index_df_names]
+
+    good_index = dataframe.index.to_frame().reset_index(drop=True)[filtered_names]
+    dataframe = pd.concat([dataframe.reset_index(drop=True), good_index], axis=1).set_index(good_index.columns.tolist())
+    return dataframe
 
 
 
