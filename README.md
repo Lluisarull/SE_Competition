@@ -1,8 +1,15 @@
-# EcoForecast: Revolutionizing Green Energy Surplus Prediction in Europe
-NUWE - Schneider Electric European Data Science Challenge - November 2023.
+# Forecasting Green Energy Surplus in Europe
 
 ## Introduction
+This respository is part of our submission for the 2023 NUWE Schneider Electric European Data Science Challenge: EcoForecast: Revolutionizing Green Energy Surplus Prediction in Europe.
 
+We tried to follow the guidelines and reccommendations as close as possible however there were a few things that we should note that are deviations.
+
+#### Ommitting UK
+The United Kingdom appeared to be missing Load data from July 2022 onward, which made the country's data unusable. If we were to include their data in the forecast, we would likely forecast the Load as zero and the green energy as positive. Thus, the UK would always have the largest surplus.
+
+#### Predictions
+We were unable to come up with the 442 test set predictions. Because of this, we now are submitting 2 json files consisting of 1752 observations: one indexed using simply the numbers, similar to the requested formatting, and another indexed using Timestamps.
 
 
 ## Project Overview 
