@@ -48,7 +48,7 @@ Before running the data ingestion script, make sure to set up your environment a
 
 #### Prerequisites
 
-- Python 3.x
+- Python 3.10
 - Dependencies (list any additional dependencies)
 
 #### Configuration
