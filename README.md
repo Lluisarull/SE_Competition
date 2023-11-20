@@ -13,40 +13,24 @@ The structure of the repository is as follows:
 
 
 
-`|-- README.md
+|-- README.md
 |-- requirements.txt
-
 |-- data
-
 |   |-- your_train.csv
-
 |   |-- test.csv
-
 |-- src
-
 |   |-- data_ingestion.py
-
 |   |-- data_processing.py
-
 |   |-- model_training.py (or model_training.ipynb)
-
 |   |-- model_prediction.py
-
 |   |-- utils.py
-
 |-- models
-
 |   |-- model.pkl
-
 |-- scripts
-
 |   |-- run_pipeline.sh
-
 |-- predictions
-
     |-- example_predictions.json
-
-    |-- predictions.json`
+    |-- predictions.json
 
 
 We aggregate the data to the hourly level.
