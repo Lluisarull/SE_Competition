@@ -62,9 +62,11 @@ The script iterates through each 'CountryID' and energy type/load, trains indivi
 ### Model Prediction
 
 <figure>
-  <img src="https://github.com/Lluisarull/SE_Competition/assets/28493210/4cdcee24-72c4-43b8-bff0-0649a0db61a3" alt="example_forecast">
+  <img src="https://github.com/Lluisarull/SE_Competition/assets/28493210/4cdcee24-72c4-43b8-bff0-0649a0db61a3](https://github.com/Lluisarull/SE_Competition/assets/28493210/1cce64a6-e4ca-4b6e-ba7b-bab92623b185" alt="example_forecast">
   <figcaption>Example forecast from training our lasso model.</figcaption>
 </figure>
+<br />
+<br />
 
 The script operates in several stages to generate predictions and output them as a JSON file. Initially, it loads a dictionary object containing trained models from a specified file. The models are then accessed individually for each time series, predicting the test set data using these models. The predictions are aggregated into a single DataFrame format. The script identifies the country with the largest surplus of green energy, extracting predictions related to surplus energy and outputting them into a JSON file.
 
