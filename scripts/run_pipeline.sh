@@ -15,7 +15,7 @@ clean_data_file="$6"
 train_file="$7"
 test_file="$8"
 model_file="$9"
-predictions_file="$10"
+predictions_file="${10}"
 
 # Run data_ingestion.py
 echo "Starting data ingestion..."
