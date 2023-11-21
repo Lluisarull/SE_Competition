@@ -62,7 +62,7 @@ The script iterates through each 'CountryID' and energy type/load, trains indivi
 ### Model Prediction
 
 <figure>
-  <img src="https://github.com/Lluisarull/SE_Competition/assets/28493210/4cdcee24-72c4-43b8-bff0-0649a0db61a3](https://github.com/Lluisarull/SE_Competition/assets/28493210/1cce64a6-e4ca-4b6e-ba7b-bab92623b185" alt="example_forecast">
+  <img src="https://github.com/Lluisarull/SE_Competition/assets/28493210/dcccbc6a-87e4-4924-b625-4823b0bfe8dd" alt="example_forecast">
   <figcaption>Example forecast from training our lasso model.</figcaption>
 </figure>
 <br />
