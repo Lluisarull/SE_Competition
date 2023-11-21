@@ -1,9 +1,9 @@
 #!/bin/bash
 
 # You can run this script from the command line using:
-# ./run_pipeline.sh <start_date> <end_date> <raw_data_file> <master_gen_file> <master_load_file> <clean_data_file> <model_file> <predictions_file>
+# ./run_pipeline.sh <start_date> <end_date> <raw_data_path> <master_gen_file> <master_load_file> <clean_data_file> <model_file> <predictions_file>
 # For example:
-# ./run_pipeline.sh 2020-01-01 2020-01-31 data/ data/master_gen.csv data/master_load.csv data/clean/data.csv data/clean/train.csv data/clean/test.csv models/model_dictionary.pickle predictions/predictions.json
+# sh scripts/run_pipeline.sh 2022-01-01 2023-01-01 data/ data/master_gen.csv data/master_load.csv data/clean/data.csv data/clean/train.csv data/clean/test.csv models/model_dictionary.pickle predictions/predictions.json
 
 # Get command line arguments
 start_date="$1"
