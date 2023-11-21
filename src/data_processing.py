@@ -21,14 +21,15 @@ def load_data(load_filepath, gen_filepath):
     return load_data, gen_data
 
 def process_load_data(load_data):
-    # preprocessing steps for the dataset that will be used to make predictions
+    print('Number of observations before processing load_data:' ,load_data.shape[0])
     # datetime object:
     load_data['Time'] = pd.to_datetime(load_data.Time)
     # drop column
     load_data.drop(['AreaID', 'PsrType', 'UnitName'], axis=1, inplace=True)
+    
     # drop UK
     load_data = load_data.query('CountryID != 1')
-    
+
     # ---------load data-full: make sure all timestamps are there--------
     datetime_series = pd.date_range(start=load_data.Time.min(), end=load_data.Time.max(), freq='H')
     numbers_range = load_data.CountryID.unique()
@@ -45,13 +46,13 @@ def process_load_data(load_data):
     load_data_full = load_data_full.set_index(['CountryID','Time']).groupby('CountryID', as_index=False).apply(lambda x: x.interpolate(method='linear', limit_direction='both'))
     
     load_data_full = drop_none_indices(load_data_full)
-
+    print('number of observations after processing load_data:', load_data_full.shape[0])
     return load_data_full
     
 def process_gen_data(gen_data):
     # preprocessing steps for the dataset that will be used to make predictions
 
-    #convert to datetime
+    print('Number of observations before processing gen_data:', gen_data.shape[0])
     gen_data['Time'] = pd.to_datetime(gen_data.Time)
 
     # drop column
@@ -100,7 +101,7 @@ def process_gen_data(gen_data):
     gen_data_full = gen_data_full[green_energy]
     
     gen_data_full = drop_none_indices(gen_data_full)
-
+    print('number of observations after processing gen_data:', gen_data_full.shape[0])
     return gen_data_full
 
 def merge_data(load_data_full, gen_data_full):
@@ -307,13 +308,13 @@ def parse_arguments():
     parser.add_argument(
         '--input_gen_file',
         type=str,
-        default='data/master_gen.csv',
+        default='data/raw/master_gen.csv',
         help='Path to the raw gen data file to process'
     )
     parser.add_argument(
         '--input_load_file',
         type=str,
-        default='data/master_load.csv',
+        default='data/raw/master_load.csv',
         help='Path to the raw load data file to process'
     )
     parser.add_argument(
@@ -334,17 +335,11 @@ def parse_arguments():
         default='data/clean/train.csv', 
         help='Path to save the processed data in wide format.'
     )
-    parser.add_argument(
-        '--data_clean_wide_imputed_file', 
-        type=str, 
-        default='data/clean/data_clean_wide_imputed_file.csv', 
-        help='Path to save the processed data in wide format.'
-    )
     return parser.parse_args()
 
 
 def main(input_gen_file, input_load_file, output_data_file, train_output, test_output):
-    loaded_data, gen_data = load_data(input_gen_file, input_load_file)
+    loaded_data, gen_data = load_data(input_load_file, input_gen_file)
     data = preprocess_data(loaded_data,gen_data)
     save_data(data, output_data_file)
     loaded_data_wide, gen_data_wide = load_data(input_load_file, input_gen_file)

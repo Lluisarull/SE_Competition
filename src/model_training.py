@@ -4,11 +4,24 @@ import numpy as np
 from scalecast.Forecaster import Forecaster
 import argparse
 
+# Function to load data from a CSV file and set multi-index columns
 def load_data(file_path):
+    
     df = pd.read_csv(file_path).set_index(['CountryID', 'Time'])
     return df
 
+# Function to train a forecasting model
 def train_model(y_var, estimator = 'lasso'):
+    """
+    Train a forecasting model.
+    
+    Args:
+    y_var (pandas.Series): Time series data.
+    estimator (str): Estimator type for the model (default is 'lasso').
+    
+    Returns:
+    scalecast.Forecaster.Forecaster: Trained forecasting model.
+    """
     f = Forecaster(
     y = y_var,
     current_dates = y_var.index,
@@ -26,8 +39,17 @@ def train_model(y_var, estimator = 'lasso'):
     
     return f
 
+# Function to train forecasting models for all country IDs and energy types
 def train_all_models(data):
-
+    """
+    Train forecasting models for all country IDs and energy types.
+    
+    Args:
+    data (pandas.DataFrame): Input data containing multiple country IDs and energy types.
+    
+    Returns:
+    dict: Dictionary of trained models for each country ID and energy type.
+    """
     country_ids = data.reset_index().CountryID.unique()
     loads_energies = data.columns.tolist()
 
@@ -41,10 +63,18 @@ def train_all_models(data):
             models[country_id].update({energy_type:model_object})
     return models
 
+# Function to save trained models to a file using pickle
 def save_model(models, filepath):
+    """
+    Save trained models to a file using pickle.
+    
+    Args:
+    models (dict): Dictionary containing trained models.
+    filepath (str): Path to save the models.
+    """
     with open(filepath, 'wb') as handle:
         pickle.dump(models, handle, protocol=pickle.HIGHEST_PROTOCOL)
-    pass
+    pass  # Placeholder for potential additional code
 
 def parse_arguments():
     parser = argparse.ArgumentParser(description='Model training script for Energy Forecasting Hackathon')

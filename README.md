@@ -5,11 +5,11 @@ This respository is part of our submission for the 2023 NUWE Schneider Electric 
 
 In this repository we use data from the ENTSO-E Transparency portal to predict which European country will have the highest surplus of green energy in the next hour. Predicting green energy surplus is critical for optimizing energy distribution, aiding in the efficient utilization of renewable resources, and ultimately fostering a more sustainable and resilient energy grid across Europe.
 
-We tried to follow the guidelines and recommendations as close as possible however we should note several deviations:
+We tried to follow the guidelines and recommendations as close as possible however we note several deviations:
 
 - **Ommitting UK**: The United Kingdom appeared to be missing Load data from July 2022 onward, which made the country's data unusable. If we were to include their data in the forecast, we would likely forecast the Load as zero and the green energy as positive. Thus, the UK would always have the largest surplus.
 
-- **Data Formatting**: We put a lot of thought of how to model the data to generate the best predictions. In the end we concluded that the features in the example test.csv file provided by Schneider would not have the better predictive power than the features we use the model created for this hackathon solution. Nonetheless, we develop code to generate the data in the format requested. 
+- **Data Formatting**: We put a lot of thought of how to model the data to generate the best predictions. In the end we concluded that the features in the example test.csv file provided by Schneider would not have the better predictive power than the features we use the model created for this hackathon solution. Nonetheless, we develop code to generate the data in the format requested, this file is called data_clean_wide_imputed_file.csv
 
 - **Predictions**: We were unable to come up with the 442 test set predictions. Because of this, we now have 2 json files in the `predictions/` folder consisting of 1752 observations: one indexed using simply the numbers, similar to the requested formatting, and another indexed using Timestamps. 
 
@@ -19,7 +19,7 @@ We tried to follow the guidelines and recommendations as close as possible howev
 - You can clone this repository by running `git clone https://github.com/Lluisarull/SE_Competition` in your terminal window.
 - Before running the scripts, make sure to set up your environment, installing Python 3.10 and configure the necessary parameters according to the `requirements.txt` file.
 - Also make sure that you have configured the API endpoint and authentication credentials.
-- To run everything, you can type `sh scripts/run_pipeline.sh 2022-01-01 2023-01-01 data/ data/master_gen.csv data/master_load.csv data/clean/data.csv data/clean/train.csv data/clean/test.csv models/model_dictionary.pickle predictions/predictions.json` in the terminal window which runs each file in the src folder.
+- To run everything, you can type `sh scripts/run_pipeline.sh 2022-01-01 2023-01-01 data/raw/ data/raw/master_gen.csv data/raw/master_load.csv data/clean/data.csv data/clean/train.csv data/clean/test.csv models/model_dictionary.pickle predictions/predictions.json` in the terminal window which runs each file in the src folder.
 
 ## src
 The project is structured in 4 different jobs, each of which is defined in a script in the src folder.
@@ -27,7 +27,7 @@ The project is structured in 4 different jobs, each of which is defined in a scr
 ### Data Ingestion
 
 This project includes a data ingestion process that retrieves data from an external API.
-The data ingestion is handled by the `data_ingestion.py` script. This script is responsible for making API calls to download the required data. The output of the script are two csv files in the `data/raw` folder, one for the load data ('master_load.csv') and the other for the generation data ('master_gen.csv')
+The data ingestion is handled by the `data_ingestion.py` script. This script is responsible for making API calls to download the required data. The output of the script are two csv files in the `data/raw` folder, one for the load data ('master_load.csv') and the other for the generation data ('master_gen.csv'). The time frame we are downloading from the API is from 1/1/2022-1/1/2023.
 
 
 ### Data Processing
@@ -37,9 +37,9 @@ The data processing consists of three primary parts:
 - **Merging them together** After processing both the generation and load data separately, the script merges these datasets based on timestamps and relevant columns. It combines the cleaned load and generation data into a single dataset, focusing on specific green energy sources, and finally saves the processed data into a CSV file.
 
 We generate three files from this script: 
-- train.csv (first 80% of the data downloaded from the API for 1/1/2022-1/1/2023 in the format requested)
-- test.csv (last 20% of the data downloaded from the API for 1/1/2022-1/1/2013 in the format requested)
-- data.csv (the dataset we created for generating our best predictions and is used by data_modeling.py)
+- train.csv (first 80% of the data downloaded from the API - used for forecasting)
+- test.csv (last 20% of the data downloaded from the API - used for forecasting)
+- data_clean_wide_imputed_file.csv (data downloaded from the API in the format requested by Schneider Electric)
 
 ### Model Training
 
