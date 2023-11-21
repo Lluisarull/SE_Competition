@@ -11,7 +11,7 @@ We tried to follow the guidelines and recommendations as close as possible howev
 
 - **Data Formatting**: We put a lot of thought of how to model the data to generate the best predictions. In the end we concluded that the features in the example test.csv file provided by Schneider would not have the better predictive power than the features we use the model created for this hackathon solution. Nonetheless, we develop code to generate the data in the format requested. 
 
-- **Predictions**: We were unable to come up with the 442 test set predictions. Because of this, we now are submitting 2 json files consisting of 1752 observations: one indexed using simply the numbers, similar to the requested formatting, and another indexed using Timestamps.
+- **Predictions**: We were unable to come up with the 442 test set predictions. Because of this, we now have 2 json files in the `predictions/` folder consisting of 1752 observations: one indexed using simply the numbers, similar to the requested formatting, and another indexed using Timestamps. 
 
 
 ## User Guide
