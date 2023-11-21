@@ -5,7 +5,7 @@ This respository is part of our submission for the 2023 NUWE Schneider Electric 
 
 In this repository we use data from the ENTSO-E Transparency portal to predict which European country will have the highest surplus of green energy in the next hour.
 
-We tried to follow the guidelines and recommendations as close as possible however we should note that several deviations:
+We tried to follow the guidelines and recommendations as close as possible however we should note several deviations:
 
 - **Ommitting UK**: The United Kingdom appeared to be missing Load data from July 2022 onward, which made the country's data unusable. If we were to include their data in the forecast, we would likely forecast the Load as zero and the green energy as positive. Thus, the UK would always have the largest surplus.
 
