@@ -18,7 +18,7 @@ We tried to follow the guidelines and recommendations as close as possible howev
 
 - You can clone this repository by running `git clone https://github.com/Lluisarull/SE_Competition` in your terminal window.
 - Before running the scripts, make sure to set up your environment, installing Python 3.10 and configure the necessary parameters according to the `requirements.txt` file.
-- To run everything, you can type `sh scripts/run_pipeline.sh 2020-01-01 2020-01-31 data/raw_data.csv data/master_gen.csv data/master_load.csv data/clean/data.csv models/model_dictionary.pickle predictions/predictions.json` in the terminal window which runs each file in the src folder.
+- To run everything, you can type `sh scripts/run_pipeline.sh 2022-01-01 2023-01-01 data/raw_data.csv data/master_gen.csv data/master_load.csv data/clean/data.csv data/clean/train.csv data/clean/test.csv models/model_dictionary.pickle predictions/predictions.json` in the terminal window which runs each file in the src folder.
 
 ## src
 The project is structured in 4 different jobs, each of which is defined in a script in the src folder.
