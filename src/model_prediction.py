@@ -55,7 +55,9 @@ def numeric_to_categorical_predictions(predictions_df):
     predictions_df = predictions_df.largest_surplus.reset_index().rename({'largest_surplus':'target'}, axis=1)
     predictions_df['Time'] = predictions_df['Time'].astype(str)
     predictions_df.set_index('Time', inplace=True)
-    alternate_format = predictions_df.reset_index(drop=True)
+    
+    alternate_format = predictions_df.copy()
+    predictions_df.reset_index(drop=True, inplace=True)
     return predictions_df, alternate_format
 
 def save_predictions(predictions, alternate_format, predictions_file):
