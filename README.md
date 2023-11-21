@@ -12,7 +12,7 @@ The United Kingdom appeared to be missing Load data from July 2022 onward, which
 
 #### Data Formatting
 
-We put a lot of thought of how to model the data to generate the best predictions. In the end we concluded that the features in the example test_set.csv file provided by Schneider would not have the same predictive power as the features we use the model created for this hackathon solution. Nonetheless, we develop code to generate the data in the format requested. 
+We put a lot of thought of how to model the data to generate the best predictions. In the end we concluded that the features in the example test.csv file provided by Schneider would not have the same predictive power as the features we use the model created for this hackathon solution. Nonetheless, we develop code to generate the data in the format requested. 
 
 #### Predictions
 We were unable to come up with the 442 test set predictions. Because of this, we now are submitting 2 json files consisting of 1752 observations: one indexed using simply the numbers, similar to the requested formatting, and another indexed using Timestamps.
