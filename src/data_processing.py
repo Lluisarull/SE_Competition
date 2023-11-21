@@ -299,13 +299,13 @@ def parse_arguments():
     parser.add_argument(
         '--input_gen_file',
         type=str,
-        default='data/master_gen.csv',
+        default='data/raw/master_gen.csv',
         help='Path to the raw gen data file to process'
     )
     parser.add_argument(
         '--input_load_file',
         type=str,
-        default='data/master_load.csv',
+        default='data/raw/master_load.csv',
         help='Path to the raw load data file to process'
     )
     parser.add_argument(
@@ -326,17 +326,11 @@ def parse_arguments():
         default='data/clean/train.csv', 
         help='Path to save the processed data in wide format.'
     )
-    parser.add_argument(
-        '--data_clean_wide_imputed_file', 
-        type=str, 
-        default='data/clean/data_clean_wide_imputed_file.csv', 
-        help='Path to save the processed data in wide format.'
-    )
     return parser.parse_args()
 
 
 def main(input_gen_file, input_load_file, output_data_file, train_output, test_output):
-    loaded_data, gen_data = load_data('data/master_load.csv', 'data/master_gen.csv')
+    loaded_data, gen_data = load_data(input_load_file, input_gen_file)
     data = preprocess_data(loaded_data,gen_data)
     save_data(data, output_data_file)
     loaded_data_wide, gen_data_wide = load_data(input_load_file, input_gen_file)
