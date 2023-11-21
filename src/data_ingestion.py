@@ -4,7 +4,7 @@ import pandas as pd
 from utils import perform_get_request, xml_to_load_dataframe, xml_to_gen_data, check_hourly_interval
 import os
 
-bad_files = ['test.csv', 'master_gen.csv', 'master_load.csv']
+bad_files = ['test.csv', 'master_gen.csv', 'master_load.csv'] # files we don't want to be affected by csv aggregation
 
 country_ids = {
 'SP': 0, # Spain
