@@ -15,8 +15,8 @@ def drop_none_indices(dataframe):
 
 def load_data(load_filepath, gen_filepath):
     # read data in:
-    load_data = pd.read_csv('data/master_load.csv').drop('Unnamed: 0', axis=1)
-    gen_data = pd.read_csv('data/master_gen.csv').drop('Unnamed: 0', axis=1)
+    load_data = pd.read_csv(load_filepath).drop('Unnamed: 0', axis=1)
+    gen_data = pd.read_csv(gen_filepath).drop('Unnamed: 0', axis=1)
     return load_data, gen_data
 
 def process_load_data(load_data):
