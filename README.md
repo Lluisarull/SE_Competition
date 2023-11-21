@@ -9,7 +9,7 @@ We tried to follow the guidelines and recommendations as close as possible howev
 
 - **Ommitting UK**: The United Kingdom appeared to be missing Load data from July 2022 onward, which made the country's data unusable. If we were to include their data in the forecast, we would likely forecast the Load as zero and the green energy as positive. Thus, the UK would always have the largest surplus.
 
-- **Data Formatting**: We put a lot of thought of how to model the data to generate the best predictions. In the end we concluded that the features in the example test.csv file provided by Schneider would not have the same predictive power as the features we use the model created for this hackathon solution. Nonetheless, we develop code to generate the data in the format requested. 
+- **Data Formatting**: We put a lot of thought of how to model the data to generate the best predictions. In the end we concluded that the features in the example test.csv file provided by Schneider would not have the better predictive power than the features we use the model created for this hackathon solution. Nonetheless, we develop code to generate the data in the format requested. 
 
 - **Predictions**: We were unable to come up with the 442 test set predictions. Because of this, we now are submitting 2 json files consisting of 1752 observations: one indexed using simply the numbers, similar to the requested formatting, and another indexed using Timestamps.
 
