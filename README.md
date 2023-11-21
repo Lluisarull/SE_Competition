@@ -3,7 +3,7 @@
 ## Introduction
 This respository is part of our submission for the 2023 NUWE Schneider Electric European Data Science Challenge: EcoForecast: Revolutionizing Green Energy Surplus Prediction in Europe.
 
-In this repository we use data from the ENTSO-E Transparency portal to predict which European country will have the highest surplus of green energy in the next hour.
+In this repository we use data from the ENTSO-E Transparency portal to predict which European country will have the highest surplus of green energy in the next hour. Predicting green energy surplus is critical for optimizing energy distribution, aiding in the efficient utilization of renewable resources, and ultimately fostering a more sustainable and resilient energy grid across Europe.
 
 We tried to follow the guidelines and recommendations as close as possible however we should note several deviations:
 
@@ -45,7 +45,7 @@ We generate three files from this script:
 
 #### Forecasting Methodology
 
-After loading in the cleaned dataset, the script uses the Scalecast library to forecast energy consumption or generation. It trains individual models for each time series, focusing on specific 'CountryID' and energy types. The forecasting approach includes adding time trends, seasonal regressors for weeks and days, autoregressive terms, and specifying the model estimator (default is 'lasso'). The models are trained and evaluated using the Root Mean Squared Error (RMSE) metric.
+After loading in the cleaned dataset, the script uses the Scalecast library to forecast energy consumption or generation. It trains individual lasso models for each time series, focusing on specific 'CountryID' and energy types. The forecasting approach includes adding time trends, seasonal regressors for weeks and days, and 72 autoregressive terms. The lasso models are trained using the Root Mean Squared Error (RMSE) metric.
 
 #### Scalecast Forecast Object Parameters
 - y_var: Represents the target variable (energy consumption/generation) for a specific 'CountryID' and energy type.
