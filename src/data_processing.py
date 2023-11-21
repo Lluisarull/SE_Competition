@@ -5,6 +5,7 @@ import numpy as np
 import joblib
 
 def drop_none_indices(dataframe):
+    # remove indices that have no value
     index_names = list(dataframe.index.names)
     index_df_names = dataframe.index.to_frame().reset_index(drop=True).columns.to_list()
     filtered_names = [x for x in index_names if x in index_df_names]
@@ -49,6 +50,7 @@ def process_load_data(load_data):
     return load_data_full
     
 def process_gen_data(gen_data):
+    # preprocessing steps for the dataset that will be used to make predictions
 
     print('Number of observations before processing gen_data:', gen_data.shape[0])
     gen_data['Time'] = pd.to_datetime(gen_data.Time)
@@ -110,16 +112,20 @@ def merge_data(load_data_full, gen_data_full):
     return _data
 
 def preprocess_data(load_data, gen_data):
+    # generates the files used for prediction
     load_data = process_load_data(load_data)
     gen_data = process_gen_data(gen_data)
     data = merge_data(load_data, gen_data)
     return data
 
 def save_data(data, filepath):
+    #save to csv
     data.to_csv(filepath)
     pass
 
 def process_load_2(load_data):
+    #code to make the dataframe as specified by Schneider
+
     # datetime object
     load_data['Time'] = pd.to_datetime(load_data['Time'])
 
@@ -147,6 +153,8 @@ def process_load_2(load_data):
     return load_data_full
 
 def process_gen_2(gen_data):
+    #code to make the dataframe as specified by schneider
+
     # Datetime object
     gen_data['Time'] = pd.to_datetime(gen_data.Time)
     #Drop unnecessary columns
@@ -268,6 +276,7 @@ def impute_nans(df):
     return df
 
 def preprocess_data_2(load_data, gen_data):
+    # where the final creation of the dataframe specified by schneider happens
     load_data_full = process_load_2(load_data)
     gen_data_full = process_gen_2(gen_data)
     data = load_data_full.rename({'quantity':'load'}, axis=1).set_index(['CountryID','Time']).merge(gen_data_full, left_index=True, right_index=True)
