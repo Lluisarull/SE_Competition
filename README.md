@@ -18,6 +18,7 @@ We tried to follow the guidelines and recommendations as close as possible howev
 
 - You can clone this repository by running `git clone https://github.com/Lluisarull/SE_Competition` in your terminal window.
 - Before running the scripts, make sure to set up your environment, installing Python 3.10 and configure the necessary parameters according to the `requirements.txt` file.
+- Also make sure that you have configured the API endpoint and authentication credentials.
 - To run everything, you can type `sh scripts/run_pipeline.sh 2022-01-01 2023-01-01 data/raw_data.csv data/master_gen.csv data/master_load.csv data/clean/data.csv data/clean/train.csv data/clean/test.csv models/model_dictionary.pickle predictions/predictions.json` in the terminal window which runs each file in the src folder.
 
 ## src
@@ -29,23 +30,11 @@ This project includes a data ingestion process that retrieves data from an exter
 The data ingestion is handled by the `data_ingestion.py` script. This script is responsible for making API calls to download the required data. The output of the script are two csv files in the `data/raw` folder, one for the load data ('master_load.csv') and the other for the generation data ('master_gen.csv')
 
 
-#### Configuration
-
-Ensure that you have configured the API endpoint and authentication credentials.
-
 ### Data Processing
-
-#### Energy Generation Processing
-
-The script begins by loading and processing the raw energy generation data. It cleans the dataset by converting the 'Time' column to datetime format, dropping unnecessary columns, interpolating missing values, and filtering for specific types of green energy sources.
-
-#### Load File Processing
-
-Similarly, the script handles the raw load data. It converts the 'Time' column to datetime format, removes unnecessary columns, ensures all timestamps are present, interpolates missing values, and prepares the dataset.
-Merging Them Together
-
-#### Merging them together
-After processing both the generation and load data separately, the script merges these datasets based on timestamps and relevant columns. It combines the cleaned load and generation data into a single dataset, focusing on specific green energy sources, and finally saves the processed data into a CSV file.
+The data processing consists of three primary parts:
+ - **Energy Generation Processing**: The script begins by loading and processing the raw energy generation data. It cleans the dataset by converting the 'Time' column to datetime format, dropping unnecessary columns, interpolating missing values, and filtering for specific types of green energy sources.
+- **Load File Processing**: Similarly, the script handles the raw load data. It converts the 'Time' column to datetime format, removes unnecessary columns, ensures all timestamps are present, interpolates missing values, and prepares the dataset.
+- **Merging them together** After processing both the generation and load data separately, the script merges these datasets based on timestamps and relevant columns. It combines the cleaned load and generation data into a single dataset, focusing on specific green energy sources, and finally saves the processed data into a CSV file.
 
 We generate three files from this script: 
 - train.csv (first 80% of the data downloaded from the API for 1/1/2022-1/1/2023 in the format requested)
