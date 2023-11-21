@@ -165,6 +165,55 @@ def process_gen_2(gen_data):
     
     return gen_data_full
 
+def process_load_2(load_data):
+    # datetime object
+    load_data['Time'] = pd.to_datetime(load_data['Time'])
+
+    # Drop unnecessary columns
+    load_data.drop(['AreaID', 'UnitName','PsrType'], axis=1, inplace=True)
+
+    # Hour aggregation
+    load_data = hour_agg(load_data, ['CountryID'], 'Time', 'quantity')
+
+    # Create a datetime series with hourly frequency from the minimum to maximum 'Time'
+    datetime_series = pd.date_range(start=load_data['Time'].min(), end=load_data['Time'].max(), freq='H')
+
+    # Create a range of unique 'CountryID' values
+    numbers_range = load_data['CountryID'].unique()
+
+    # Create a MultiIndex from the Cartesian product of 'datetime_series' and 'numbers_range'
+    index = pd.MultiIndex.from_product([datetime_series, numbers_range], names=['Time', 'CountryID'])
+
+    # Create a DataFrame with the MultiIndex
+    df_index = pd.DataFrame(index=index).reset_index()
+
+    # Merge the created DataFrame with the MultiIndex with the original 'load_data'
+    load_data_full = df_index.merge(load_data, how='left')
+
+    return load_data_full
+
+def process_gen_2(gen_data):
+    # Datetime object
+    gen_data['Time'] = pd.to_datetime(gen_data.Time)
+    #Drop unnecessary columns
+    gen_data.drop(['AreaID', 'UnitName'], axis=1, inplace=True)
+    
+    datetime_series = pd.date_range(start=gen_data.Time.min(), end=gen_data.Time.max(), freq='H')
+    numbers_range = gen_data.CountryID.unique()
+    psr_vals = gen_data.PsrType.unique()
+
+    # Creating a multi-index from cartesian product of both ranges
+    index = pd.MultiIndex.from_product([datetime_series, numbers_range, psr_vals], names=['Time', 'CountryID', 'PsrType'])
+
+    # Creating a DataFrame with the multi-index
+    df_index = pd.DataFrame(index=index).reset_index()
+
+    gen_data_2 = df_index.merge(gen_data, how='left')
+
+    gen_data_full = gen_data_2.pivot_table(index = ['Time','CountryID'], columns= ['PsrType'], values='quantity')
+    
+    return gen_data_full
+
 def hour_agg(data, groupby_columns, time_column, value_column):
     """
     Perform hourly aggregation on the specified DataFrame.
@@ -275,6 +324,7 @@ def preprocess_data_2(load_data, gen_data):
     data_clean_wide_imputed = impute_nans(data_clean_wide)
     return data_clean_wide_imputed
 
+
 def split_data(df):
     # keep sequential order of data
     df.sort_values(by='Time', inplace = True) 
@@ -321,7 +371,14 @@ def parse_arguments():
         default='data/clean/train.csv', 
         help='Path to save the processed data in wide format.'
     )
+    parser.add_argument(
+        '--data_clean_wide_imputed_file', 
+        type=str, 
+        default='data/clean/data_clean_wide_imputed_file.csv', 
+        help='Path to save the processed data in wide format.'
+    )
     return parser.parse_args()
+
 
 def main(input_gen_file, input_load_file, output_data_file, train_output, test_output):
     loaded_data, gen_data = load_data('data/master_load.csv', 'data/master_gen.csv')
