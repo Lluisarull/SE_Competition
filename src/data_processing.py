@@ -24,6 +24,8 @@ def process_load_data(load_data):
     load_data['Time'] = pd.to_datetime(load_data.Time)
     # drop column
     load_data.drop(['AreaID', 'PsrType', 'UnitName'], axis=1, inplace=True)
+    # drop UK
+    load_data = load_data.query('CountryID != 1')
     
     # ---------load data-full: make sure all timestamps are there--------
     datetime_series = pd.date_range(start=load_data.Time.min(), end=load_data.Time.max(), freq='H')
