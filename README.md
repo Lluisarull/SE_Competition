@@ -3,47 +3,20 @@
 ## Introduction
 This respository is part of our submission for the 2023 NUWE Schneider Electric European Data Science Challenge: EcoForecast: Revolutionizing Green Energy Surplus Prediction in Europe.
 
+In this repository we use data from the ENTSO-E Transparency portal to predict which European country will have the highest surplus of green energy in the next hour.
+
 We tried to follow the guidelines and recommendations as close as possible however there were a few things that we should note that are several deviations:
 
 #### Ommitting UK
 The United Kingdom appeared to be missing Load data from July 2022 onward, which made the country's data unusable. If we were to include their data in the forecast, we would likely forecast the Load as zero and the green energy as positive. Thus, the UK would always have the largest surplus.
 
 #### Data Formatting
-'something about how the other format worked better, but we include both for the sake of the competition.'
 
+We put a lot of thought of how to model the data to generate the best predictions. In the end we concluded that the features in the example test_set.csv file provided by Schneider would not have the same predictive power as the features we use the model created for this hackathon solution. Nonetheless, we develop code to generate the data in the format requested. 
 
 #### Predictions
 We were unable to come up with the 442 test set predictions. Because of this, we now are submitting 2 json files consisting of 1752 observations: one indexed using simply the numbers, similar to the requested formatting, and another indexed using Timestamps.
 
-## Project Overview 
-
-In this repository we use data from the ENTSO-E Transparency portal to predict which European country will have the highest surplus of green energy in the next hour.
-
-The structure of the repository is as follows:
-
-
-
-|-- README.md
-|-- requirements.txt
-|-- data
-|   |-- your_train.csv
-|   |-- test.csv
-|-- src
-|   |-- data_ingestion.py
-|   |-- data_processing.py
-|   |-- model_training.py (or model_training.ipynb)
-|   |-- model_prediction.py
-|   |-- utils.py
-|-- models
-|   |-- model.pkl
-|-- scripts
-|   |-- run_pipeline.sh
-|-- predictions
-    |-- example_predictions.json
-    |-- predictions.json
-
-
-We aggregate the data to the hourly level.
 
 ## User Guide
 
@@ -77,6 +50,11 @@ Merging Them Together
 
 #### Merging them together
 After processing both the generation and load data separately, the script merges these datasets based on timestamps and relevant columns. It combines the cleaned load and generation data into a single dataset, focusing on specific green energy sources, and finally saves the processed data into a CSV file.
+
+We generate three files from this script: 
+- train.csv (first 80% of the data downloaded from the API for 1/1/2022-1/1/2023 in the format requested)
+- test.csv (last 20% of the data downloaded from the API for 1/1/2022-1/1/2013 in the format requested)
+- data.csv (the dataset we created for generating our best predictions and is used by data_modeling.py)
 
 ### Model Training
 
