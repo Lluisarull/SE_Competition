@@ -37,9 +37,9 @@ The data processing consists of three primary parts:
 - **Merging them together** After processing both the generation and load data separately, the script merges these datasets based on timestamps and relevant columns. It combines the cleaned load and generation data into a single dataset, focusing on specific green energy sources, and finally saves the processed data into a CSV file.
 
 We generate three files from this script: 
-- train.csv (first 80% of the data downloaded from the API - used for forecasting)
-- test.csv (last 20% of the data downloaded from the API - used for forecasting)
-- data_clean_wide_imputed_file.csv (data downloaded from the API in the format requested by Schneider Electric)
+- train.csv (first 80% of the data downloaded from the API in the format requested by Schneider Electric)
+- test.csv (last 20% of the data downloaded from the API in the format requested by Schneider Electric)
+- data.csv (data used for forecasting, where columns are energy type and there is a unique country and time per row.)
 
 ### Model Training
 
